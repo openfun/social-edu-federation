@@ -1,0 +1,85 @@
+# CircleCI's configuration
+#
+# Reference: https://circleci.com/docs/2.0/configuration-reference/
+
+version: 2.1
+jobs:
+  # Git jobs
+  # Check that the git history is clean and complies with our expectations
+  lint-git:
+    docker:
+      # stay in python 3.8
+      - image: cimg/python:3.8
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+    working_directory: ~/marsha
+    steps:
+      - checkout
+      - run:
+          name: Install gitlint
+          command: |
+            pip install requests
+            pip install --user gitlint
+      - run:
+          name: lint commit messages added to main
+          command: |
+              ~/.local/bin/gitlint --commits origin/main..HEAD
+
+  # Check that the CHANGELOG has been updated in the current branch
+  check-changelog:
+    docker:
+      - image: cimg/base:2022.04
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+    working_directory: ~/marsha
+    steps:
+      - checkout
+      - run:
+          name: Check that the CHANGELOG has been modified in the current branch
+          command: |
+            git whatchanged --name-only --pretty="" origin..HEAD | grep CHANGELOG
+
+# Check that the CHANGELOG max line length does not exceed 80 characters
+  lint-changelog:
+    docker:
+      - image: debian:stretch
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+    working_directory: ~/marsha
+    steps:
+      - checkout
+      - run:
+          name: Check CHANGELOG max line length
+          command: |
+            # Get the longuest line width (ignoring release links)
+            test $(cat CHANGELOG.md | grep -Ev "^\[.*\]: https://github.com/openfun" | wc -L) -le 80
+
+workflows:
+  version: 2
+
+  social-edu-federation:
+    jobs:
+      # Git jobs
+      #
+      # Check validity of git history
+      - lint-git:
+          filters:
+            tags:
+              only: /.*/
+
+      # Check changelog validity
+      - check-changelog:
+          filters:
+            branches:
+              ignore: main
+            tags:
+              ignore: /.*/
+      - lint-changelog:
+          filters:
+            branches:
+              ignore: main
+            tags:
+              ignore: /.*/
