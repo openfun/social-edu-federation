@@ -1,5 +1,6 @@
 # social-edu-federation: An SAML authentication backend for python-social-auth dedicated to education federation (RENATER) 
 
+[![Python version](https://img.shields.io/badge/Python-3.8%20|%203.9%20|%203.10-blue.svg)](https://www.python.org/)
 [![CircleCI](https://circleci.com/gh/openfun/social-edu-federation/tree/main.svg?style=svg)](https://circleci.com/gh/openfun/social-edu-federation/tree/main)
 
 ## Overview
