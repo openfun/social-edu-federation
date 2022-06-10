@@ -3,16 +3,14 @@
 # Reference: https://circleci.com/docs/2.0/configuration-reference/
 
 version: 2.1
+orbs:
+  python: circleci/python@2.0.1
 jobs:
   # Git jobs
   # Check that the git history is clean and complies with our expectations
   lint-git:
     docker:
-      # stay in python 3.8
-      - image: cimg/python:3.8
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
+      - image: cimg/python:3.10
     working_directory: ~/marsha
     steps:
       - checkout
@@ -30,9 +28,6 @@ jobs:
   check-changelog:
     docker:
       - image: cimg/base:2022.04
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
     working_directory: ~/marsha
     steps:
       - checkout
@@ -45,9 +40,6 @@ jobs:
   lint-changelog:
     docker:
       - image: debian:stretch
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
     working_directory: ~/marsha
     steps:
       - checkout
@@ -56,6 +48,54 @@ jobs:
           command: |
             # Get the longuest line width (ignoring release links)
             test $(cat CHANGELOG.md | grep -Ev "^\[.*\]: https://github.com/openfun" | wc -L) -le 80
+
+  # Run linters
+  lint:
+    docker:
+      - image: cimg/python:3.10
+    steps:
+      - checkout
+      - run:
+          name: Install development dependencies
+          command: pip install --user .[dev]
+      - run:
+          name: Lint code with isort
+          command: ~/.local/bin/isort --check-only src tests
+      - run:
+          name: Lint code with black
+          command: ~/.local/bin/black --check src tests
+      - run:
+          name: Lint code with flake8
+          command: ~/.local/bin/flake8 src tests
+      - run:
+          name: Lint code with pylint
+          command: ~/.local/bin/pylint --rcfile=pylintrc src tests
+      - run:
+          name: Lint code with bandit
+          command: ~/.local/bin/bandit -c .bandit -qr src
+
+  tests:
+    docker:
+      - image: cimg/python:3.10
+    steps:
+      - checkout
+      - python/install-packages:
+          pkg-manager: pip-dist
+          path-args: .[dev]
+          pypi-cache: true
+          venv-cache: false
+          # pip-dependency-file is only used for cache checksum
+          pip-dependency-file: tox.ini
+          pre-install-steps:
+            - run: pyenv install --skip-existing 3.8.13
+            - run: pyenv install --skip-existing 3.9.12
+            - run: pyenv install --skip-existing 3.10.4
+            - run: pyenv local 3.8.13 3.9.12 3.10.4
+      - run:
+          name: "Run tox"
+          command: tox
+      - store_artifacts:
+          path: htmlcov
 
 workflows:
   version: 2
@@ -83,3 +123,11 @@ workflows:
               ignore: main
             tags:
               ignore: /.*/
+      - lint:
+          filters:
+            tags:
+              only: /.*/
+      - tests:
+          filters:
+            tags:
+              only: /.*/
