@@ -8,5 +8,7 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Federation metadata parser.
 
 [unreleased]: https://github.com/openfun/social-edu-federation
