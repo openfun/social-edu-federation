@@ -10,7 +10,7 @@ jobs:
   # Check that the git history is clean and complies with our expectations
   lint-git:
     docker:
-      - image: cimg/python:3.10.4
+      - image: cimg/python:3.10
     working_directory: ~/marsha
     steps:
       - checkout
@@ -52,7 +52,7 @@ jobs:
   # Run linters
   lint:
     docker:
-      - image: cimg/python:3.10.4
+      - image: cimg/python:3.10
     steps:
       - checkout
       - run:
@@ -76,7 +76,7 @@ jobs:
 
   tests:
     docker:
-      - image: cimg/python:3.10.4
+      - image: cimg/python:3.10
     steps:
       - checkout
       - python/install-packages:
