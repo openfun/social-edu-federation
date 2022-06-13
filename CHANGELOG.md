@@ -10,5 +10,6 @@ and this project adheres to
 ## [Unreleased]
 ### Added
 - Federation metadata parser.
+- "Féderation Éducation-Recherche" SAML authentication backend.
 
 [unreleased]: https://github.com/openfun/social-edu-federation
