@@ -1,13 +1,116 @@
 """SAML Metadata and response generators for SAML testing"""
 import calendar
 from datetime import datetime, timedelta
+import uuid
 
 from onelogin.saml2.constants import OneLogin_Saml2_Constants
 from onelogin.saml2.metadata import OneLogin_Saml2_Metadata
 from onelogin.saml2.utils import OneLogin_Saml2_Utils
 from onelogin.saml2.xml_utils import OneLogin_Saml2_XML
+from signxml import XMLSigner
 
-from .certificates import get_dev_certificate
+from .certificates import get_dev_certificate, get_dev_private_key
+
+
+_AUTH_RESPONSE_TEMPLATE = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<saml2p:Response ID="_885e05fc3bae1925e730e0e9d5c4e1cd"
+    InResponseTo="{in_response_to}"
+    IssueInstant="2022-05-17T13:00:29.472Z"
+    Version="2.0"
+    xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol"
+>
+    <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">{issuer}</saml2:Issuer>
+    <saml2p:Status>
+        <saml2p:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
+    </saml2p:Status>
+    <saml2:Assertion ID="_1ee4d12dc0a92300cfb40c8156157708"
+        IssueInstant="2022-05-17T13:00:29.472Z" Version="2.0"
+        xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    >
+        <saml2:Issuer>{issuer}</saml2:Issuer>
+        <ds:Signature
+            xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+            Id="placeholder"
+        ></ds:Signature>
+        <saml2:Subject>
+            <saml2:NameID
+                Format="urn:oasis:names:tc:SAML:2.0:nameid-format:transient"
+                NameQualifier="{issuer}"
+                SPNameQualifier="edu-fed"
+                xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+            >
+                AAdzZWNyZXQx8FkJgLzpWsL9G4Mauc9xXvhUvdKaxTH8l4KW488QIIcn++
+                uJqZodQEnOPyQtB2vU3vNlXDdYkJCbS8q8ZWuGAqceE0Xzgq7ojC1c9jM=
+            </saml2:NameID>
+            <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+                <saml2:SubjectConfirmationData Address="62.35.89.32"
+                    InResponseTo="{in_response_to}"
+                    NotOnOrAfter="{valid_until}"
+                    Recipient="{acs_url}"
+                />
+            </saml2:SubjectConfirmation>
+        </saml2:Subject>
+        <saml2:Conditions
+            NotBefore="2022-05-17T13:00:29.472Z"
+            NotOnOrAfter="{valid_until}"
+        >
+            <saml2:AudienceRestriction>
+                <saml2:Audience>edu-fed</saml2:Audience>
+            </saml2:AudienceRestriction>
+        </saml2:Conditions>
+        <saml2:AuthnStatement
+            AuthnInstant="2022-05-17T13:00:26.365Z"
+            SessionIndex="_56c3b72bf3594719715df05ef75461f0"
+        >
+            <saml2:SubjectLocality Address="62.35.89.32"/>
+            <saml2:AuthnContext>
+                <saml2:AuthnContextClassRef>
+                    urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+                </saml2:AuthnContextClassRef>
+            </saml2:AuthnContext>
+        </saml2:AuthnStatement>
+        <saml2:AttributeStatement>
+            <saml2:Attribute
+                FriendlyName="eduPersonPrincipalName"
+                Name="urn:oid:1.3.6.1.4.1.5923.1.1.1.6"
+                NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
+            >
+                <saml2:AttributeValue>{user_id}</saml2:AttributeValue>
+            </saml2:Attribute>
+            <saml2:Attribute
+                FriendlyName="sn"
+                Name="urn:oid:2.5.4.4"
+                NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
+            >
+                <saml2:AttributeValue>{surname}</saml2:AttributeValue>
+            </saml2:Attribute>
+            <saml2:Attribute
+                FriendlyName="givenName"
+                Name="urn:oid:2.5.4.42"
+                NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
+            >
+                <saml2:AttributeValue>{given_name}</saml2:AttributeValue>
+            </saml2:Attribute>
+            <saml2:Attribute
+                FriendlyName="displayName"
+                Name="urn:oid:2.16.840.1.113730.3.1.241"
+                NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
+            >
+                <saml2:AttributeValue>{display_name}</saml2:AttributeValue>
+            </saml2:Attribute>
+            <saml2:Attribute
+                FriendlyName="mail"
+                Name="urn:oid:0.9.2342.19200300.100.1.3"
+                NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
+            >
+                <saml2:AttributeValue>{email}</saml2:AttributeValue>
+            </saml2:Attribute>
+        </saml2:AttributeStatement>
+    </saml2:Assertion>
+</saml2p:Response>
+"""
 
 
 _ENTITIES_DESCRIPTOR_TEMPLATE = """\
@@ -154,3 +257,36 @@ def generate_idp_federation_metadata(entity_descriptor_list=None, **kwargs):
     )
 
     return entities_descriptor_xml
+
+
+def generate_auth_response(in_response_to, acs_url, **kwargs):
+    """Generates an SAML authentication response."""
+    response_attributes = {
+        "in_response_to": in_response_to,
+        "issuer": "http://edu.example.com/adfs/services/trust",
+        "entity_id": "http://edu.example.com/adfs/services/trust",
+        "acs_url": acs_url,
+        "valid_until": OneLogin_Saml2_Utils.parse_time_to_SAML(
+            calendar.timegm((datetime.utcnow() + timedelta(days=10)).utctimetuple())
+        ),
+        "user_id": str(uuid.uuid4()),
+        "surname": "Sanchez",
+        "given_name": "Rick",
+        "display_name": "Rick Sanchez",
+        "email": "rsanchez@samltest.id",
+    }
+    response_attributes.update(kwargs)
+
+    auth_response = _AUTH_RESPONSE_TEMPLATE.format(**response_attributes)
+
+    # Sign response
+    saml_root = OneLogin_Saml2_XML.to_etree(auth_response)
+    xml_signer = XMLSigner(c14n_algorithm="http://www.w3.org/2001/10/xml-exc-c14n#")
+    signed_saml = xml_signer.sign(
+        saml_root,
+        key=get_dev_private_key(),
+        cert=get_dev_certificate(),
+        reference_uri="_1ee4d12dc0a92300cfb40c8156157708",
+    )
+
+    return OneLogin_Saml2_XML.to_string(signed_saml).decode("utf-8")
