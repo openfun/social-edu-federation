@@ -93,7 +93,7 @@ jobs:
             - run: pyenv local 3.8.13 3.9.12 3.10.4
       - run:
           name: "Run tox"
-          command: tox
+          command: tox --parallel 3
       - store_artifacts:
           path: htmlcov
 
