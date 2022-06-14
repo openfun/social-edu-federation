@@ -57,7 +57,7 @@ jobs:
       - checkout
       - run:
           name: Install development dependencies
-          command: pip install --user .[dev]
+          command: pip install --user .[dev,django]
       - run:
           name: Lint code with isort
           command: ~/.local/bin/isort --check-only src tests
