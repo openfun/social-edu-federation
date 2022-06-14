@@ -57,19 +57,19 @@ jobs:
       - checkout
       - run:
           name: Install development dependencies
-          command: pip install --user .[dev]
+          command: pip install --user .[dev,django]
       - run:
           name: Lint code with isort
-          command: ~/.local/bin/isort --check-only src tests
+          command: ~/.local/bin/isort --check-only src tests tests_django
       - run:
           name: Lint code with black
-          command: ~/.local/bin/black --check src tests
+          command: ~/.local/bin/black --check src tests tests_django
       - run:
           name: Lint code with flake8
-          command: ~/.local/bin/flake8 src tests
+          command: ~/.local/bin/flake8 src tests tests_django
       - run:
           name: Lint code with pylint
-          command: ~/.local/bin/pylint --rcfile=pylintrc src tests
+          command: ~/.local/bin/pylint --rcfile=pylintrc src tests tests_django
       - run:
           name: Lint code with bandit
           command: ~/.local/bin/bandit -c .bandit -qr src

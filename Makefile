@@ -46,22 +46,22 @@ lint: \
 
 lint-black:  ## Run the black tool and update files that need to
 	@echo "$(BOLD)Running black$(RESET)"
-	black src tests
+	black src tests tests_django
 .PHONY: lint-black
 
 lint-flake8:  ## Run the flake8 tool
 	@echo "$(BOLD)Running flake8$(RESET)"
-	flake8 src tests
+	flake8 src tests tests_django
 .PHONY: lint-flake8
 
 lint-isort:  ## automatically re-arrange python imports in code base
 	@echo "$(BOLD)Running isort$(RESET)"
-	isort src tests --atomic
+	isort src tests tests_django --atomic
 .PHONY: lint-isort
 
 lint-pylint:  ## Run the pylint tool
 	@echo "$(BOLD)Running pylint$(RESET)"
-	pylint --rcfile=pylintrc src tests
+	pylint --rcfile=pylintrc src tests tests_django
 .PHONY: lint-pylint
 
 lint-bandit: ## lint back-end python sources with bandit
