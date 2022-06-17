@@ -26,6 +26,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.admin",
     "social_django",
+    # project apps
+    "social_edu_federation.django.apps.PythonSocialEduFedAuthConfig",
 ]
 
 SITE_ID = 1
