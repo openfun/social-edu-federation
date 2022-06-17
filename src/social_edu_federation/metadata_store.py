@@ -41,6 +41,18 @@ class BaseMetadataStore:
             timeout=10,
         )
 
+    def refresh_cache_entries(self):
+        """
+        Entry point for metadata store with cache management.
+
+        Not implemented nor used here, but needs to be implemented in frameworks integration
+        to easily refresh the cache.
+        See:
+         - `social_edu_federation.django.metadata_store.CachedMetadataStore` for the implementation
+         - `social_edu_federation.django.management.prefetch_saml_fer_metadata` for its use
+        """
+        raise NotImplementedError()
+
     def get_idp(self, idp_name):
         """Given the name of an IdP, get an SAMLIdentityProvider instance from federation."""
         xml_metadata = self.fetch_remote_metadata()

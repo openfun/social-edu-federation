@@ -94,6 +94,19 @@ class EduFedSAMLAuth(SAMLAuth):
         """Boilerplate to the federation's metadata URL provided by settings."""
         return self.setting("FEDERATION_SAML_METADATA_URL", None)
 
+    def get_metadata_store(self):
+        """Retrieves the metadata store according to configuration."""
+        metadata_store_path = self.setting(
+            "FEDERATION_SAML_METADATA_STORE",
+            "social_edu_federation.metadata_store.BaseMetadataStore",
+        )
+        try:
+            metadata_store_class = module_member(metadata_store_path)
+        except AttributeError as exception:
+            # Reraise exception as an ImportError
+            raise ImportError(exception) from exception
+        return metadata_store_class(self)
+
     def get_idp(self, idp_name):
         """
         Given the name of an IdP, get an SAMLIdentityProvider instance.
@@ -117,15 +130,6 @@ class EduFedSAMLAuth(SAMLAuth):
 
         This method is only a boilerplate to the cached configurations.
         """
-        metadata_store_path = self.setting(
-            "FEDERATION_SAML_METADATA_STORE",
-            "social_edu_federation.metadata_store.BaseMetadataStore",
-        )
-        try:
-            metadata_store_class = module_member(metadata_store_path)
-        except AttributeError as exception:
-            # Reraise exception as an ImportError
-            raise ImportError(exception) from exception
-        metadata_store = metadata_store_class(self)
+        metadata_store = self.get_metadata_store()
 
         return metadata_store.get_idp(idp_name)

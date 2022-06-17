@@ -59,6 +59,8 @@ class CachedMetadataStore(CacheEntryMixin, BaseMetadataStore):
     from the remote Federation Metadata without parsing data each time.
     """
 
+    parsed_metadata_key = "all_idps"
+
     def __init__(self, backend):
         """Add cache specific configuration."""
         super().__init__(backend)
@@ -82,7 +84,7 @@ class CachedMetadataStore(CacheEntryMixin, BaseMetadataStore):
 
         all_idp_dict = FederationMetadataParser.parse_federation_metadata(xml_metadata)
 
-        self.set("all_idps", all_idp_dict)
+        self.set(self.parsed_metadata_key, all_idp_dict)
         self.set_many(**all_idp_dict)
 
         return all_idp_dict
