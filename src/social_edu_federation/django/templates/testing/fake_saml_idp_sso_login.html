@@ -1,0 +1,22 @@
+{% extends template_extends %}
+
+{% block js_scripts %}
+    <script type="text/javascript">
+    window.onload = function(){
+        document.SSO_Login.submit();
+    };
+    </script>
+{% endblock %}
+
+{% block content %}
+  {{ block.super }}
+  <div id="content-main" class="inner-container">
+    <form action="{{ acs_url }}" method="post" name="SSO_Login">
+        <input name="SAMLResponse" value="{{ auth_response|safe }}" />
+        <input name="RelayState" value="{{ saml_relay_state|safe }}" />
+        <div class="submit-row">
+          <button class="btn-primary" type="submit" value="Log in">Log in</button>
+        </div>
+    </form>
+  </div>
+{% endblock %}

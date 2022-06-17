@@ -13,5 +13,6 @@ and this project adheres to
 - "Féderation Éducation-Recherche" SAML authentication backend.
 - Django integration: add metadata store with cache
 - Django integration: add cache refresh management command.
+- Django integration: add common views for SAML FER backend use.
 
 [unreleased]: https://github.com/openfun/social-edu-federation

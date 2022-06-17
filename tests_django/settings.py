@@ -24,7 +24,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.sites",
     "django.contrib.messages",
-    "django.contrib.admin",
+    "django.contrib.staticfiles",
     "social_django",
     # project apps
     "social_edu_federation.django.apps.PythonSocialEduFedAuthConfig",
@@ -39,8 +39,31 @@ MIDDLEWARE = (
     "social_django.middleware.SocialAuthExceptionMiddleware",
 )
 
-AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
+AUTHENTICATION_BACKENDS = (
+    "social_edu_federation.backends.saml_fer.FERSAMLAuth",
+    "django.contrib.auth.backends.ModelBackend",
+)
+
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "social_django.context_processors.backends",
+                "social_django.context_processors.login_redirect",
+            ]
+        },
+    }
+]
+
 
 SECRET_KEY = get_random_secret_key()
 
-STATIC_URL = "/static/"
+STATIC_URL = "static/"
+LOGIN_REDIRECT_URL = "index"
