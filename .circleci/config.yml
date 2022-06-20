@@ -98,6 +98,8 @@ jobs:
           command: tox --parallel 3
       - store_artifacts:
           path: htmlcov
+      - store_test_results:
+          path: test-reports
 
 workflows:
   version: 2
