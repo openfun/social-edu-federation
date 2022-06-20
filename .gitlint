@@ -7,13 +7,13 @@
 # verbosity = 2
 
 # By default gitlint will ignore merge commits. Set to 'false' to disable.
-# ignore-merge-commits=true
+ignore-merge-commits=false
 
 # By default gitlint will ignore fixup commits. Set to 'false' to disable.
-# ignore-fixup-commits=true
+ignore-fixup-commits=false
 
 # By default gitlint will ignore squash commits. Set to 'false' to disable.
-# ignore-squash-commits=true
+ignore-squash-commits=false
 
 # Enable debug mode (prints more output). Disabled by default.
 # debug=true
