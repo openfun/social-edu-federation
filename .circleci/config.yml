@@ -83,7 +83,7 @@ jobs:
       - checkout
       - python/install-packages:
           pkg-manager: pip-dist
-          path-args: .[dev]
+          path-args: . tox
           pypi-cache: true
           venv-cache: false
           # pip-dependency-file is only used for cache checksum
