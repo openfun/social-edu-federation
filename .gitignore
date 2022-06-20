@@ -72,6 +72,7 @@ src/frontend/translations/*.json
 *.log
 local_settings.py
 db.sqlite3
+tests_django/local.db
 
 # Flask stuff:
 instance/

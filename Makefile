@@ -78,6 +78,14 @@ test: ## run the test suite (tox)
 .PHONY: test
 
 
+# -- local django server
+
+run_django: ## run the Django test server
+	@echo "$(BOLD)Running Django test server$(RESET)"
+	DJANGO_ENVIRONMENT=development python tests_django/manage.py runserver 127.0.0.1:8071
+.PHONY: run_django
+
+
 # -- Misc
 
 h: # short default help task
