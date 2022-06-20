@@ -11,5 +11,6 @@ and this project adheres to
 ### Added
 - Federation metadata parser.
 - "Féderation Éducation-Recherche" SAML authentication backend.
+- Django integration: add metadata store with cache
 
 [unreleased]: https://github.com/openfun/social-edu-federation

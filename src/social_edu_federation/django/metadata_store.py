@@ -9,7 +9,7 @@ from social_edu_federation.metadata_store import BaseMetadataStore
 from social_edu_federation.parser import FederationMetadataParser
 
 
-class CacheEntryMixIn:
+class CacheEntryMixin:
     """
     Mix-in to turn `BaseMetadataStore` into a cache object to easily
     manage object storage in cache.
@@ -28,7 +28,7 @@ class CacheEntryMixIn:
 
     def _namespaced_key(self, key):
         """Returns a key for the cache entry."""
-        return f"{self.namespace}:{key}"
+        return f"edu_federation:{self.namespace}:{key}"
 
     def set_many(self, **kwargs):
         """
@@ -51,7 +51,7 @@ class CacheEntryMixIn:
         self.cache.set(self._namespaced_key(entry_id), value, self.duration)
 
 
-class CachedMetadataStore(CacheEntryMixIn, BaseMetadataStore):
+class CachedMetadataStore(CacheEntryMixin, BaseMetadataStore):
     """
     Implementation of a metadata store for authentication backends with cache.
 
