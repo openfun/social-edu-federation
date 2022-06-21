@@ -14,5 +14,6 @@ and this project adheres to
 - Django integration: add metadata store with cache
 - Django integration: add cache refresh management command.
 - Django integration: add common views for SAML FER backend use.
+- User's first name/last name/full name cleanup pipeline step.
 
 [unreleased]: https://github.com/openfun/social-edu-federation
