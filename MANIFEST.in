@@ -1,0 +1,18 @@
+include CHANGELOG.md
+include LICENSE
+include README.md
+
+graft src/social_edu_federation
+
+prune tests
+prune tests_django
+
+global-exclude *.py[cod] __pycache__ *.so .*.swp *~
+
+exclude .bandit
+exclude .circleci/*
+exclude .gitlint
+exclude Makefile
+exclude lib/**
+exclude pylintrc
+exclude tox.ini
