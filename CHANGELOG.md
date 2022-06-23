@@ -8,6 +8,9 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.0.1] - 2022-06-24
+
 ### Added
 - Federation metadata parser.
 - "Féderation Éducation-Recherche" SAML authentication backend.
@@ -16,4 +19,5 @@ and this project adheres to
 - Django integration: add common views for SAML FER backend use.
 - User's first name/last name/full name cleanup pipeline step.
 
-[unreleased]: https://github.com/openfun/social-edu-federation
+[unreleased]: https://github.com/openfun/social-edu-federation/compare/v0.0.1...main
+[0.0.1]: https://github.com/openfun/social-edu-federation/compare/8d3b675d043e1e791ca78c3a0b2ba3f44635128e...v0.0.1
