@@ -76,6 +76,20 @@ jobs:
           name: Lint code with bandit
           command: ~/.local/bin/bandit -c .bandit -qr src
 
+  # Packaging checks
+  check-manifest:
+    docker:
+      - image: cimg/python:3.10
+    steps:
+      - checkout
+      - run:
+          name: Install development dependencies
+          command: pip install --user .[dev]
+      - run:
+          name: Check the MANIFEST.in
+          command: ~/.local/bin/check-manifest
+
+  # Run the test suite
   tests:
     docker:
       - image: cimg/python:3.10
@@ -127,10 +141,20 @@ workflows:
               ignore: main
             tags:
               ignore: /.*/
+
+      # Check code quality
       - lint:
           filters:
             tags:
               only: /.*/
+
+      # Check packaging
+      - check-manifest:
+          filters:
+            tags:
+              only: /.*/
+
+      # Run test suite
       - tests:
           filters:
             tags:

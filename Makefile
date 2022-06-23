@@ -69,6 +69,10 @@ lint-bandit: ## lint back-end python sources with bandit
 	bandit -c .bandit -qr src
 .PHONY: lint-bandit
 
+check-manifest: ## check the MANIFEST.in is correct
+	@echo "$(BOLD)Running check-manifest$(RESET)"
+	check-manifest
+.PHONY: check-manifest
 
 # -- tests
 
