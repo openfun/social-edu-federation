@@ -134,10 +134,8 @@ jobs:
           path: dist
 
   # PyPI publishing
-  # Requires:
-  #   * you already registered the package to pypi.org
-  #   * you defined both the TWINE_USERNAME & TWINE_PASSWORD secret
-  #     environment variables in CircleCI UI (with your PyPI credentials)
+  # Requires you defined both the TWINE_USERNAME & TWINE_PASSWORD secret
+  # environment variables in CircleCI UI (with your PyPI credentials)
   pypi:
     docker:
       - image: cimg/python:3.10
