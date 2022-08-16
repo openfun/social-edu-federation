@@ -1,16 +1,28 @@
 {% extends template_extends %}
 
 {% block js_scripts %}
+    {% if not user_description_form %}
     <script type="text/javascript">
     window.onload = function(){
         document.SSO_Login.submit();
     };
     </script>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
   {{ block.super }}
   <div id="content-main" class="inner-container">
+    {% if user_description_form %}
+    {{ user_description_form.errors }}
+    <form method="post">
+      {% csrf_token %}
+      {{ user_description_form.as_p }}
+      <div class="submit-row">
+        <button class="btn-primary" type="submit" value="Log in">Log in</button>
+      </div>
+    </form>
+    {% else %}
     <form action="{{ acs_url }}" method="post" name="SSO_Login">
         <input name="SAMLResponse" value="{{ auth_response|safe }}" />
         <input name="RelayState" value="{{ saml_relay_state|safe }}" />
@@ -18,5 +30,6 @@
           <button class="btn-primary" type="submit" value="Log in">Log in</button>
         </div>
     </form>
+    {%  endif %}
   </div>
 {% endblock %}

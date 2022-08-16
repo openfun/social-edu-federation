@@ -107,6 +107,7 @@ _AUTH_RESPONSE_TEMPLATE = """\
             >
                 <saml2:AttributeValue>{email}</saml2:AttributeValue>
             </saml2:Attribute>
+            {edu_person_affiliation_attribute}
         </saml2:AttributeStatement>
     </saml2:Assertion>
 </saml2p:Response>
@@ -196,6 +197,22 @@ def format_md_organization_display_name(display_name, language_code="fr"):
     )
 
 
+def format_edu_person_affiliation_attribute(edu_person_affiliation):
+    """Formats the `eduPersonAffiliation` attribute to add in SAML Auth response"""
+    if not edu_person_affiliation:
+        return ""
+
+    return f"""
+        <saml2:Attribute
+        FriendlyName="eduPersonAffiliation"
+        Name="urn:oid:1.3.6.1.4.1.5923.1.1.1.1"
+        NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
+    >
+        <saml2:AttributeValue>{edu_person_affiliation}</saml2:AttributeValue>
+    </saml2:Attribute>
+    """
+
+
 def _add_x509_key_descriptors(metadata, cert) -> str:
     """Highly inspired from OneLogin_Saml2_Metadata.add_x509_key_descriptors"""
     root = OneLogin_Saml2_XML.to_etree(metadata)
@@ -274,6 +291,9 @@ def generate_auth_response(in_response_to, acs_url, **kwargs):
         "given_name": "Rick",
         "display_name": "Rick Sanchez",
         "email": "rsanchez@samltest.id",
+        "edu_person_affiliation_attribute": format_edu_person_affiliation_attribute(
+            kwargs.get("edu_person_affiliation", None),
+        ),
     }
     response_attributes.update(kwargs)
 

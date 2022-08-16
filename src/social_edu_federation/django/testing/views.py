@@ -1,4 +1,6 @@
 """social_edu_federation's Django testing views."""
+import uuid
+
 from django.http import HttpResponse
 from django.urls import reverse
 from django.views import View
@@ -8,6 +10,7 @@ from onelogin.saml2.utils import OneLogin_Saml2_Utils
 from onelogin.saml2.xml_utils import OneLogin_Saml2_XML
 from social_django.views import NAMESPACE
 
+from social_edu_federation.django.testing.forms import SamlFakeIdpUserForm
 from social_edu_federation.testing.saml_tools import (
     format_mdui_display_name,
     generate_auth_response,
@@ -40,7 +43,14 @@ class FederationMetadataFromLocalFileView(View):
 
 
 class SamlFakeIdpSsoLocationView(TemplateView):
-    """Local identity provider faking view"""
+    """
+    Local identity provider faking view.
+
+    When accessing via a GET request it displays a form to customize authenticating
+    user attributes.
+    Then it POST data to generate the SAML response which will be POSTed again on
+    the `acs_url` page by the javascript.
+    """
 
     template_name = "testing/fake_saml_idp_sso_login.html"
     template_extends = "social_edu_federation/base.html"
@@ -53,10 +63,13 @@ class SamlFakeIdpSsoLocationView(TemplateView):
         to the usual Django Social Auth endpoint (`acs_url`).
         """
         context = super().get_context_data(**kwargs)
+        context["template_extends"] = self.template_extends
 
-        data = self.request.GET
-        saml_request = data["SAMLRequest"]
-        saml_relay_state = data["RelayState"]
+        data_from_get = self.request.GET
+        data_from_post = self.request.POST
+
+        saml_request = data_from_get["SAMLRequest"]
+        saml_relay_state = data_from_get["RelayState"]
 
         readable_saml_request = OneLogin_Saml2_Utils.decode_base64_and_inflate(
             saml_request
@@ -65,23 +78,48 @@ class SamlFakeIdpSsoLocationView(TemplateView):
         acs_url = saml_request.get("AssertionConsumerServiceURL")
         request_id = saml_request.get("ID")
 
-        context.update(
-            {
-                "template_extends": self.template_extends,
-                #
-                "acs_url": acs_url,
-                "auth_response": OneLogin_Saml2_Utils.b64encode(
-                    generate_auth_response(
-                        request_id,
-                        acs_url,
-                        issuer=self.request.build_absolute_uri(self.request.path),
-                    )
-                ),
-                "saml_relay_state": saml_relay_state,
-            }
-        )
+        if data_from_post:
+            user_description_form = SamlFakeIdpUserForm(data=data_from_post)
+            if not user_description_form.is_valid():
+                context["user_description_form"] = user_description_form
+            else:
+                context.update(
+                    {
+                        "acs_url": acs_url,
+                        "auth_response": OneLogin_Saml2_Utils.b64encode(
+                            generate_auth_response(
+                                request_id,
+                                acs_url,
+                                issuer=self.request.build_absolute_uri(
+                                    self.request.path
+                                ),
+                                **user_description_form.cleaned_data,
+                            )
+                        ),
+                        "saml_relay_state": saml_relay_state,
+                    }
+                )
+        else:
+            user_description_form = SamlFakeIdpUserForm(
+                initial={
+                    "acs_url": acs_url,
+                    "request_id": request_id,
+                    "saml_relay_state": saml_relay_state,
+                    #
+                    "user_id": str(uuid.uuid4()),
+                    "surname": "Sanchez",
+                    "given_name": "Rick",
+                    "display_name": "Rick Sanchez",
+                    "email": "rsanchez@samltest.id",
+                }
+            )
+            context["user_description_form"] = user_description_form
 
         return context
+
+    def post(self, request, *args, **kwargs):
+        """Allow POST request on this view"""
+        return super().get(request, *args, **kwargs)
 
 
 class SamlFakeIdpMetadataView(View):
