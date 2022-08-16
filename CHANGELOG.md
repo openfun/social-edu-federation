@@ -11,6 +11,7 @@ and this project adheres to
 
 ### Added
 - IDP faker, allow to customize the user attributes.
+- IDP faker, allow to override the port used to generate metadata.
 
 ## [1.0.0] - 2022-06-24
 

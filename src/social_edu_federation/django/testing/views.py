@@ -1,6 +1,7 @@
 """social_edu_federation's Django testing views."""
 import uuid
 
+from django.conf import settings
 from django.http import HttpResponse
 from django.urls import reverse
 from django.views import View
@@ -135,6 +136,18 @@ class SamlFakeIdpMetadataView(View):
         sso_location = self.request.build_absolute_uri(
             reverse(self.local_idp_login_view_name)
         )
+
+        # Allow to manually override the port when this is used from inside Docker container
+        override_port = getattr(
+            settings,
+            "SOCIAL_AUTH_SAML_FER_IDP_FAKER_DOCKER_PORT",
+            None,
+        )
+        if override_port:
+            sso_location = sso_location.replace(
+                f":{self.request.get_port()}/",
+                f":{override_port}/",
+            )
 
         entity_descriptor_list = [
             generate_idp_metadata(

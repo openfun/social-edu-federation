@@ -20,6 +20,20 @@ def test_idp_metadata_view(client):
     assert b"md:EntityDescriptor" in response.content
 
 
+def test_idp_metadata_view_with_port_override(client, settings):
+    """Asserts EduFedMetadataView returns valid metadata."""
+    settings.SOCIAL_AUTH_SAML_FER_IDP_FAKER_DOCKER_PORT = 8060
+
+    response = client.get(
+        reverse("social_edu_federation_django_testing:idp_metadata"),
+        SERVER_PORT=8000,
+    )
+
+    assert response.status_code == 200
+    assert b"md:EntityDescriptor" in response.content
+    assert b"http://testserver:8060/saml/idp/sso/" in response.content
+
+
 def test_full_login_process(backend_settings, client, live_server, settings):
     """Asserts the nominal login process works."""
     settings.SOCIAL_AUTH_SAML_FER_FEDERATION_SAML_METADATA_URL = (

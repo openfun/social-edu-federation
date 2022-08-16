@@ -299,6 +299,20 @@ make run_django
 
 Open it in your browser.
 
+##### Docker
+
+In case you want to plug the testing views in your own project which is run in a Docker container
+you will probably need to define the port used in the generated metadata. By default,
+it will use the Django application port (let's say 8000) but if your mapping to the container
+uses another port you have to define `SOCIAL_AUTH_SAML_FER_IDP_FAKER_DOCKER_PORT` setting
+to provide the proper port.
+
+E.g.:
+ - Without override: metadata will be for `http://testserver:8000/saml/idp/sso/`
+ - With `SOCIAL_AUTH_SAML_FER_IDP_FAKER_DOCKER_PORT=11000`,
+   metadata will be for `http://testserver:11000/saml/idp/sso/`.
+
+
 ## Contributing
 
 This project is intended to be community-driven, so please, do not hesitate to get in touch if you
