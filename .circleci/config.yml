@@ -18,7 +18,7 @@ jobs:
           name: Install gitlint
           command: |
             pip install requests
-            pip install --user gitlint
+            pip install --user --upgrade gitlint
       - run:
           name: lint commit messages added to main
           command: |
@@ -57,7 +57,7 @@ jobs:
       - checkout
       - run:
           name: Install development dependencies
-          command: pip install --user .[dev,django,django-dev]
+          command: pip install --user --upgrade ".[dev,django,django-dev]"
       - run:
           name: Lint code with isort
           command: ~/.local/bin/isort --check-only src tests tests_django
@@ -84,7 +84,7 @@ jobs:
       - checkout
       - run:
           name: Install development dependencies
-          command: pip install --user .[dev]
+          command: pip install --user --upgrade ".[dev]"
       - run:
           name: Check the MANIFEST.in
           command: ~/.local/bin/check-manifest
@@ -149,7 +149,7 @@ jobs:
           command: ls dist/*
       - run:
           name: Install twine
-          command: pip install --user twine
+          command: pip install --user --upgrade "twine"
       - run:
           name: Upload built packages to PyPI
           command: ~/.local/bin/twine upload dist/*
