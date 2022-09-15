@@ -9,6 +9,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.0.1] - 2022-09-15
+
 ### Added
 - IDP faker, allow to customize the user attributes.
 - IDP faker, allow to override the port used to generate metadata.
@@ -23,5 +25,6 @@ and this project adheres to
 - Django integration: add common views for SAML FER backend use.
 - User's first name/last name/full name cleanup pipeline step.
 
-[unreleased]: https://github.com/openfun/social-edu-federation/compare/v1.0.0...main
+[unreleased]: https://github.com/openfun/social-edu-federation/compare/v1.0.1...main
+[1.0.1]: https://github.com/openfun/social-edu-federation/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/openfun/social-edu-federation/compare/8d3b675d043e1e791ca78c3a0b2ba3f44635128e...v1.0.0
