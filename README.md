@@ -53,7 +53,7 @@ The authentication process can be summarized in few steps:
   - **urn:oid:0.9.2342.19200300.100.1.3** (mail)
     Provides us the user email, we use it as email address and username.
   - **urn:oid:1.3.6.1.4.1.5923.1.1.1.1** (eduPersonAffiliation)
-    Allows us to try to determine the role (student/professor).
+    Provides us the user's role(s) list.
     This is not mandatory.
 
   Fields we do not use:

@@ -10,9 +10,8 @@ class SamlFakeIdpUserForm(forms.Form):
     given_name = forms.CharField(label="Last name")
     display_name = forms.CharField(label="Full name")
     email = forms.CharField(label="Email")
-    edu_person_affiliation = forms.ChoiceField(
+    edu_person_affiliation = forms.MultipleChoiceField(
         choices=(
-            (None, ""),
             ("student", "student"),
             ("faculty", "faculty"),
             ("staff", "staff"),
@@ -30,3 +29,7 @@ class SamlFakeIdpUserForm(forms.Form):
         label="eduPersonAffiliation",
         required=False,
     )
+
+    def clean_edu_person_affiliation(self):
+        """eduPersonAffiliation is a list of strings, not a single string."""
+        return ",".join(self.cleaned_data["edu_person_affiliation"])

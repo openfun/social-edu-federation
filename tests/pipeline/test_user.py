@@ -44,7 +44,7 @@ def backend_strategy_fixture():
                 "last_name": "surname",
                 "username": "mail",
                 "email": "mail",
-                "role": "eduPersonAffiliation",
+                "roles": ["eduPersonAffiliation"],
             },
             {
                 "fullname": "displayName",
@@ -52,7 +52,7 @@ def backend_strategy_fixture():
                 "last_name": "surname",
                 "username": "mail",
                 "email": "mail",
-                "role": "eduPersonAffiliation",
+                "roles": ["eduPersonAffiliation"],
             },
             id="all_data",
         ),
@@ -62,7 +62,7 @@ def backend_strategy_fixture():
                 "last_name": "surname",
                 "username": "mail",
                 "email": "mail",
-                "role": "eduPersonAffiliation",
+                "roles": ["eduPersonAffiliation"],
             },
             {
                 "fullname": "displayName",
@@ -70,7 +70,7 @@ def backend_strategy_fixture():
                 "last_name": "displayName",
                 "username": "mail",
                 "email": "mail",
-                "role": "eduPersonAffiliation",
+                "roles": ["eduPersonAffiliation"],
             },
             id="first name missing",
         ),
@@ -80,7 +80,7 @@ def backend_strategy_fixture():
                 "first_name": "givenName",
                 "username": "mail",
                 "email": "mail",
-                "role": "eduPersonAffiliation",
+                "roles": ["eduPersonAffiliation"],
             },
             {
                 "fullname": "displayName",
@@ -88,7 +88,7 @@ def backend_strategy_fixture():
                 "last_name": "displayName",
                 "username": "mail",
                 "email": "mail",
-                "role": "eduPersonAffiliation",
+                "roles": ["eduPersonAffiliation"],
             },
             id="last name missing",
         ),
@@ -98,14 +98,14 @@ def backend_strategy_fixture():
                 "last_name": "surname",
                 "username": "mail",
                 "email": "mail",
-                "role": "eduPersonAffiliation",
+                "roles": ["eduPersonAffiliation"],
             },
             {
                 "first_name": "givenName",
                 "last_name": "surname",
                 "username": "mail",
                 "email": "mail",
-                "role": "eduPersonAffiliation",
+                "roles": ["eduPersonAffiliation"],
             },
             id="full name missing",
         ),
@@ -142,7 +142,7 @@ def test_create_user_not_enough_data(backend_strategy, mocker):
     details = {
         "username": "mail",
         "email": "mail",
-        "role": "eduPersonAffiliation",
+        "roles": ["eduPersonAffiliation"],
     }
 
     create_user(backend, details, strategy, 42, some_kwargs=18)

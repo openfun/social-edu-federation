@@ -222,7 +222,7 @@ def test_idp_default_settings():
         "attr_last_name": "urn:oid:2.5.4.4",  # sn
         "attr_username": "urn:oid:0.9.2342.19200300.100.1.3",  # mail
         "attr_email": "urn:oid:0.9.2342.19200300.100.1.3",  # mail
-        "attr_role": "urn:oid:1.3.6.1.4.1.5923.1.1.1.1",  # eduPersonAffiliation
+        "attr_roles": "urn:oid:1.3.6.1.4.1.5923.1.1.1.1",  # eduPersonAffiliation
     }
 
 
@@ -232,7 +232,27 @@ def test_idp_overridden_setting():
     assert idp.conf["attr_username"] == "whatever"
 
 
-def test_sp_get_user_details():
+@pytest.mark.parametrize(
+    "roles_attribute,expected_roles",
+    [
+        pytest.param(
+            "eduPersonAffiliation",
+            ["eduPersonAffiliation"],
+            id="one-role",
+        ),
+        pytest.param(
+            "eduPersonAffiliation,anotherRole",
+            ["eduPersonAffiliation", "anotherRole"],
+            id="two-roles",
+        ),
+        pytest.param(
+            "",
+            [],
+            id="empty-roles",
+        ),
+    ],
+)
+def test_sp_get_user_details(roles_attribute, expected_roles):
     """Asserts the Service Provider parse the response attributes as expected."""
     idp = FERSAMLIdentityProvider("idp-name")
     details = idp.get_user_details(
@@ -242,7 +262,7 @@ def test_sp_get_user_details():
             "urn:oid:2.5.4.42": "givenName",
             "urn:oid:2.5.4.4": "surname",
             "urn:oid:0.9.2342.19200300.100.1.3": "mail",
-            "urn:oid:1.3.6.1.4.1.5923.1.1.1.1": "eduPersonAffiliation",
+            "urn:oid:1.3.6.1.4.1.5923.1.1.1.1": roles_attribute,
         }
     )
 
@@ -252,5 +272,31 @@ def test_sp_get_user_details():
         "last_name": "surname",
         "username": "mail",
         "email": "mail",
-        "role": "eduPersonAffiliation",
+        "roles": expected_roles,
+    }
+
+
+def test_sp_get_user_details_no_role_provided():
+    """
+    Asserts the Service Provider parse the response attributes as expected
+    without roles attribute (ie information is missing).
+    """
+    idp = FERSAMLIdentityProvider("idp-name")
+    details = idp.get_user_details(
+        {
+            "urn:oid:1.3.6.1.4.1.5923.1.1.1.6": "eduPersonPrincipalName",
+            "urn:oid:2.16.840.1.113730.3.1.241": "displayName",
+            "urn:oid:2.5.4.42": "givenName",
+            "urn:oid:2.5.4.4": "surname",
+            "urn:oid:0.9.2342.19200300.100.1.3": "mail",
+        }
+    )
+
+    assert details == {
+        "fullname": "displayName",
+        "first_name": "givenName",
+        "last_name": "surname",
+        "username": "mail",
+        "email": "mail",
+        "roles": None,
     }

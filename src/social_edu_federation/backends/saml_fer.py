@@ -17,7 +17,7 @@ We use the following fields:
  - urn:oid:0.9.2342.19200300.100.1.3 (mail)
    Provides us the user email, we use it as email address and username.
  - urn:oid:1.3.6.1.4.1.5923.1.1.1.1 (eduPersonAffiliation)
-   Allows use to try to determine the role (student/professor).
+   Provides us the user's role(s) list.
    This is not mandatory.
 
 Fields we do not use:
@@ -35,7 +35,7 @@ OID_COMMON_NAME = "urn:oid:2.16.840.1.113730.3.1.241"  # displayName
 OID_GIVEN_NAME = "urn:oid:2.5.4.42"  # givenName
 OID_SURNAME = "urn:oid:2.5.4.4"  # sn
 OID_MAIL = "urn:oid:0.9.2342.19200300.100.1.3"  # mail
-OID_ROLE = "urn:oid:1.3.6.1.4.1.5923.1.1.1.1"  # eduPersonAffiliation
+OID_ROLES = "urn:oid:1.3.6.1.4.1.5923.1.1.1.1"  # eduPersonAffiliation
 
 
 class FERSAMLIdentityProvider(EduFedSAMLIdentityProvider):
@@ -56,8 +56,8 @@ class FERSAMLIdentityProvider(EduFedSAMLIdentityProvider):
             "attr_username": OID_MAIL,
             # Details 'email'
             "attr_email": OID_MAIL,
-            # Details 'role', not defined in parent class but make it explicit here
-            "attr_role": OID_ROLE,
+            # Details 'roles', not defined in parent class but make it explicit here
+            "attr_roles": OID_ROLES,
         }
 
         super().__init__(name, **{**default_fer_saml_attributes, **kwargs})
@@ -67,12 +67,21 @@ class FERSAMLIdentityProvider(EduFedSAMLIdentityProvider):
         Given the SAML attributes extracted from the SSO response, get
         the user data like name.
 
-        We override the default one to add the user's role.
+        We override the default one to add the user's roles.
 
         This returns a dict which is later known in the pipeline as `details`.
         """
         user_details = super().get_user_details(attributes)
-        user_details["role"] = self.get_attr(attributes, "attr_role", OID_ROLE)
+        roles_str = self.get_attr(  # may be None or ""
+            attributes, "attr_roles", OID_ROLES
+        )
+        user_details["roles"] = (
+            roles_str.split(",")
+            if roles_str
+            # We want to preserve the None value if roles are not defined
+            # but return an empty list if roles are defined but empty (ie "")
+            else {None: None}.get(roles_str, [])
+        )
         return user_details
 
 
