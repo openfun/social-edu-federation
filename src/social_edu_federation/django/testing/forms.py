@@ -1,6 +1,8 @@
 """Forms for the social_edu_federation testing views"""
 from django import forms
 
+from social_edu_federation.defaults import EduPersonAffiliationEnum
+
 
 class SamlFakeIdpUserForm(forms.Form):
     """User attributes form, allows to customize SAML Auth Response."""
@@ -11,21 +13,7 @@ class SamlFakeIdpUserForm(forms.Form):
     display_name = forms.CharField(label="Full name")
     email = forms.CharField(label="Email")
     edu_person_affiliation = forms.MultipleChoiceField(
-        choices=(
-            ("student", "student"),
-            ("faculty", "faculty"),
-            ("staff", "staff"),
-            ("employee", "employee"),
-            ("member", "member"),
-            ("affiliate", "affiliate"),
-            ("alum", "alum"),
-            ("library-walk-in", "library-walk-in"),
-            ("researcher", "researcher"),
-            ("retired", "retired"),
-            ("emeritus", "emeritus"),
-            ("teacher", "teacher"),
-            ("registered-reader", "registered-reader"),
-        ),
+        choices=EduPersonAffiliationEnum.get_choices(),
         label="eduPersonAffiliation",
         required=False,
     )
