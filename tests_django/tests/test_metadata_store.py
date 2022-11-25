@@ -280,7 +280,7 @@ def test_saml_fer_backend_integration(cache_settings, mocker, settings):
         "attr_first_name": "urn:oid:2.5.4.42",
         "attr_full_name": "urn:oid:2.16.840.1.113730.3.1.241",
         "attr_last_name": "urn:oid:2.5.4.4",
-        "attr_role": "urn:oid:1.3.6.1.4.1.5923.1.1.1.1",
+        "attr_roles": "urn:oid:1.3.6.1.4.1.5923.1.1.1.1",
         "attr_user_permanent_id": "urn:oid:1.3.6.1.4.1.5923.1.1.1.6",
         "attr_username": "urn:oid:0.9.2342.19200300.100.1.3",
         #

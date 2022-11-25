@@ -9,6 +9,9 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+- Retrieve a *list* of roles from `eduPersonAffiliation` attribute
+
 ## [1.0.1] - 2022-09-15
 
 ### Added
