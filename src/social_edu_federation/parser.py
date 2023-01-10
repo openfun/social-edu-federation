@@ -124,6 +124,14 @@ class FederationMetadataParser(OneLogin_Saml2_IdPMetadataParser):
             entity_descriptor,
             "./md:Organization/md:OrganizationDisplayName",
         )
+        extra_data["logo"] = (
+            cls.get_xml_node_text(
+                entity_descriptor,
+                "./md:IDPSSODescriptor/md:Extensions/mdui:UIInfo/mdui:Logo",
+            )
+            .replace("\n", "")
+            .replace(" ", "")
+        )
 
         return extra_data
 

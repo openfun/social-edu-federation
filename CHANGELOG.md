@@ -9,6 +9,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+- Extract IDP's logo from metadata.
 
 ## [2.0.0] - 2022-11-28
 
