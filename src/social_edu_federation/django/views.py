@@ -77,26 +77,48 @@ class EduFedIdpChoiceView(SocialBackendViewMixin, TemplateView):
         cleaned_backend_name = slugify(self.backend_name).replace("-", "_")
         self.recent_use_cookie_name = f"_latest_idps_{cleaned_backend_name}"
 
-    def get_idp_choices(self):
-        """Returns the cached list of identity providers"""
+    def get_idp_list(self):
+        """
+        Returns the cached list of identity providers
+
+        Returns a list like:
+        ```
+        [
+            {
+                'name': 'idp-university-1',
+                'entityId': 'http://idp.domain/adfs/services/trust',
+                'singleSignOnService': {
+                    'url': 'https://idp.domain/adfs/ls/',
+                    'binding': 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+                },
+                'singleLogoutService': {
+                    'url': 'https://idp.domain/adfs/ls/',
+                    'binding': 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+                },
+                'x509cert': 'MIIC4DCCAcigAwIBAgIQG...CQZXu/agfMc/tY+miyrD0=',
+                'edu_fed_data' : {
+                    'display_name': 'IdP University 1',
+                    'organization_name': 'Organization',
+                    'organization_display_name': 'Organization displayable name',
+                }
+            },
+            ...
+        ]
+        ```
+        """
         strategy = load_strategy(self.request)
         backend = load_backend(strategy, self.backend_name, redirect_uri=None)
         metadata_store = self.metadata_store_class(backend)
 
-        choices = metadata_store.get("EduFedIdpChoiceView.get_idp_choices")
-        if choices is None:
+        idp_list = metadata_store.get("SamlFerIdpAPIView.get_idp_choices")
+        if idp_list is None:
             all_idps = metadata_store.get(metadata_store.parsed_metadata_key)
             if all_idps is None:
-                # We expect this to never happen since the cache should be
-                # refreshed every night
                 all_idps = metadata_store.refresh_cache_entries()
-            choices = list(
-                (idp["name"], idp["edu_fed_data"]["display_name"])
-                for idp in all_idps.values()
-            )
-            metadata_store.set("EduFedIdpChoiceView.get_idp_choices", choices)
+            idp_list = list(all_idps.values())
+            metadata_store.set("SamlFerIdpAPIView.get_idp_choices", idp_list)
 
-        return choices
+        return idp_list
 
     def get_context_data(self, **kwargs):
         """
@@ -111,7 +133,7 @@ class EduFedIdpChoiceView(SocialBackendViewMixin, TemplateView):
             args=(self.backend_name,),
         )
 
-        available_idps = self.get_idp_choices()
+        available_idps = self.get_idp_list()
 
         latest_selected_idps_str = self.request.COOKIES.get(
             self.recent_use_cookie_name,
@@ -120,12 +142,12 @@ class EduFedIdpChoiceView(SocialBackendViewMixin, TemplateView):
         if latest_selected_idps_str:
             # Populate the latest selected IdP list
             latest_selected_idps = latest_selected_idps_str.split("+")
-            latest_selected_idps_tuples = [
-                (idp_name, display_name)
-                for idp_name, display_name in available_idps
-                if idp_name in latest_selected_idps
+            latest_selected_idps_dict = [
+                idp_data
+                for idp_data in available_idps
+                if idp_data["name"] in latest_selected_idps
             ]
-            context["latest_selected_idps"] = latest_selected_idps_tuples
+            context["latest_selected_idps"] = latest_selected_idps_dict
         else:
             context["latest_selected_idps"] = None
         context["available_idps"] = available_idps

@@ -90,10 +90,10 @@
 
       {% if latest_selected_idps %}
         <div class="submit-row">
-          {% for idp_name, idp_display_name in latest_selected_idps %}
-              <button class="btn-idp-link recently-used-idp" type="submit" name="idp" value="{{ idp_name }}">
-                {{ idp_display_name }}
-                <span class="remove-idp-btn" onclick="removeRecentIdpCookie(event, '{{ idp_name }}')">x</span>
+          {% for idp in latest_selected_idps %}
+              <button class="btn-idp-link recently-used-idp" type="submit" name="idp" value="{{ idp.name }}">
+                {{ idp.edu_fed_data.display_name }}
+                <span class="remove-idp-btn" onclick="removeRecentIdpCookie(event, '{{ idp.name }}')">x</span>
               </button>
           {% endfor %}
         </div>
@@ -102,8 +102,10 @@
       {% endif %}
 
       <div class="submit-row">
-        {% for idp_name, idp_display_name in available_idps %}
-            <button class="btn-idp-link" type="submit" name="idp" value="{{ idp_name }}" onclick="storeRecentIdpCookie('{{ idp_name }}')">{{ idp_display_name }}</button>
+        {% for idp in available_idps %}
+            <button class="btn-idp-link" type="submit" name="idp" value="{{ idp.name }}" onclick="storeRecentIdpCookie('{{ idp.name }}')">
+              {% if idp.edu_fed_data.logo %}<img src="{{ idp.edu_fed_data.logo }}" width="16" height="16"/>&nbsp;{% endif %}{{ idp.edu_fed_data.display_name }}
+            </button>
         {% endfor %}
       </div>
     </form>

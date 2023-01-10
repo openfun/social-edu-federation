@@ -2,6 +2,7 @@
 from django.urls import reverse
 
 import pytest
+from pytest_django.asserts import assertInHTML
 from social_django.utils import load_backend, load_strategy
 
 from social_edu_federation.backends.saml_fer import FERSAMLAuth
@@ -53,18 +54,14 @@ def test_metadata_view_with_errors(client, mocker):
 def expected_idp_button(idp_name, idp_display_name):
     """Helper to generate the expected HTML for a link to IdP in `EduFedIdpChoiceView`."""
     return (
-        "<button "
-        'class="btn-idp-link" '
-        'type="submit" '
-        'name="idp" '
-        f'value="{idp_name}" '
+        f'<button class="btn-idp-link" type="submit" name="idp" value="{idp_name}"'
         f"onclick=\"storeRecentIdpCookie('{idp_name}')\">"
         f"{idp_display_name}"
         "</button>"
-    ).encode("utf-8")
+    )
 
 
-def expected_latest_idp_button(idp_name):
+def expected_latest_idp_button(idp_name, idp_display_name):
     """
     Helper to generate the expected HTML for a link to IdP
     stored in cookies as latest used in `EduFedIdpChoiceView`.
@@ -76,7 +73,11 @@ def expected_latest_idp_button(idp_name):
     return (
         '<button class="btn-idp-link recently-used-idp" type="submit" name="idp" '
         f'value="{idp_name}">'
-    ).encode("utf-8")
+        f"{idp_display_name}"
+        '<span class="remove-idp-btn" '
+        f"onclick=\"removeRecentIdpCookie(event, '{idp_name}')\">x</span>"
+        "</button>"
+    )
 
 
 def test_idp_choice_view(default_loc_mem_cache, client, mocker, settings):
@@ -114,10 +115,15 @@ def test_idp_choice_view(default_loc_mem_cache, client, mocker, settings):
         b'<form action="/login/saml_fer/" method="get" autocomplete="off">'
         in response.content
     )
-    assert expected_idp_button("some-idp", "Some IdP display name") in response.content
-    assert (
-        expected_idp_button("other-idp", "Some other IdP display name")
-        in response.content
+
+    content_str = response.content.decode("utf-8")
+    assertInHTML(
+        expected_idp_button("some-idp", "Some IdP display name"),
+        content_str,
+    )
+    assertInHTML(
+        expected_idp_button("other-idp", "Some other IdP display name"),
+        content_str,
     )
 
     # Assert the cache works
@@ -136,10 +142,14 @@ def test_idp_choice_view(default_loc_mem_cache, client, mocker, settings):
         b'<form action="/login/saml_fer/" method="get" autocomplete="off">'
         in response.content
     )
-    assert expected_idp_button("some-idp", "Some IdP display name") in response.content
-    assert (
-        expected_idp_button("other-idp", "Some other IdP display name")
-        in response.content
+    content_str = response.content.decode("utf-8")
+    assertInHTML(
+        expected_idp_button("some-idp", "Some IdP display name"),
+        content_str,
+    )
+    assertInHTML(
+        expected_idp_button("other-idp", "Some other IdP display name"),
+        content_str,
     )
 
 
@@ -186,10 +196,14 @@ def test_idp_choice_view_metadata_store_cache_used(
         b'<form action="/login/saml_fer/" method="get" autocomplete="off">'
         in response.content
     )
-    assert expected_idp_button("some-idp", "Some IdP display name") in response.content
-    assert (
-        expected_idp_button("other-idp", "Some other IdP display name")
-        in response.content
+    content_str = response.content.decode("utf-8")
+    assertInHTML(
+        expected_idp_button("some-idp", "Some IdP display name"),
+        content_str,
+    )
+    assertInHTML(
+        expected_idp_button("other-idp", "Some other IdP display name"),
+        content_str,
     )
 
 
@@ -218,8 +232,15 @@ def test_idp_choice_view_with_cookie(default_loc_mem_cache, client, mocker):
     # `recently-used-idp` is in JS + 1 button
     assert b"recently-used-idp" in response.content
 
-    assert expected_idp_button("some-idp", "Some IdP display name") in response.content
-    assert expected_latest_idp_button("other-idp") in response.content
+    content_str = response.content.decode("utf-8")
+    assertInHTML(
+        expected_idp_button("some-idp", "Some IdP display name"),
+        content_str,
+    )
+    assertInHTML(
+        expected_latest_idp_button("other-idp", "Some other IdP display name"),
+        content_str,
+    )
 
 
 def test_idp_choice_view_with_two_cookies(default_loc_mem_cache, client, mocker):
@@ -246,8 +267,15 @@ def test_idp_choice_view_with_two_cookies(default_loc_mem_cache, client, mocker)
     response = client.get(reverse("saml_fer_idp_list"))
     assert b"recently-used-idp" in response.content
 
-    assert expected_latest_idp_button("some-idp") in response.content
-    assert expected_latest_idp_button("other-idp") in response.content
+    content_str = response.content.decode("utf-8")
+    assertInHTML(
+        expected_latest_idp_button("some-idp", "Some IdP display name"),
+        content_str,
+    )
+    assertInHTML(
+        expected_latest_idp_button("other-idp", "Some other IdP display name"),
+        content_str,
+    )
 
 
 def test_idp_choice_view_with_non_existing_cookie(
@@ -276,10 +304,14 @@ def test_idp_choice_view_with_non_existing_cookie(
     )
     response = client.get(reverse("saml_fer_idp_list"))
 
-    assert expected_idp_button("some-idp", "Some IdP display name") in response.content
-    assert (
-        expected_idp_button("other-idp", "Some other IdP display name")
-        in response.content
+    content_str = response.content.decode("utf-8")
+    assertInHTML(
+        expected_idp_button("some-idp", "Some IdP display name"),
+        content_str,
+    )
+    assertInHTML(
+        expected_idp_button("other-idp", "Some other IdP display name"),
+        content_str,
     )
 
 
@@ -304,8 +336,9 @@ def test_idp_choice_view_real_world_example(
     )
 
     # check random IdP presence
-    assert (
-        expected_idp_button("idp-test-jamssn", "Idp test jams.sn") in response.content
+    assertInHTML(
+        expected_idp_button("idp-test-jamssn", "Idp test jams.sn"),
+        response.content.decode("utf-8"),
     )
 
 
