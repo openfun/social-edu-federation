@@ -243,7 +243,12 @@ def test_idp_overridden_setting():
         pytest.param(
             "eduPersonAffiliation,anotherRole",
             ["eduPersonAffiliation", "anotherRole"],
-            id="two-roles",
+            id="two-roles-string",
+        ),
+        pytest.param(
+            ["eduPersonAffiliation", "anotherRole"],
+            ["eduPersonAffiliation", "anotherRole"],
+            id="two-roles-list",
         ),
         pytest.param(
             "",

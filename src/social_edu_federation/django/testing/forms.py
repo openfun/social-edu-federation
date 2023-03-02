@@ -17,7 +17,3 @@ class SamlFakeIdpUserForm(forms.Form):
         label="eduPersonAffiliation",
         required=False,
     )
-
-    def clean_edu_person_affiliation(self):
-        """eduPersonAffiliation is a list of strings, not a single string."""
-        return ",".join(self.cleaned_data["edu_person_affiliation"])

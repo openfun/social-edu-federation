@@ -205,15 +205,22 @@ def format_edu_person_affiliation_attribute(edu_person_affiliation):
     if not edu_person_affiliation:
         return ""
 
-    return f"""
-        <saml2:Attribute
-        FriendlyName="eduPersonAffiliation"
-        Name="urn:oid:1.3.6.1.4.1.5923.1.1.1.1"
-        NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
-    >
-        <saml2:AttributeValue>{edu_person_affiliation}</saml2:AttributeValue>
-    </saml2:Attribute>
-    """
+    return (
+        """
+                <saml2:Attribute
+                FriendlyName="eduPersonAffiliation"
+                Name="urn:oid:1.3.6.1.4.1.5923.1.1.1.1"
+                NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri"
+            >
+        """
+        + "\n".join(
+            f"<saml2:AttributeValue>{attribute}</saml2:AttributeValue>"
+            for attribute in edu_person_affiliation
+        )
+        + """
+            </saml2:Attribute>
+        """
+    )
 
 
 def _add_x509_key_descriptors(metadata, cert) -> str:
@@ -281,6 +288,10 @@ def generate_idp_federation_metadata(entity_descriptor_list=None, **kwargs):
 
 def generate_auth_response(in_response_to, acs_url, **kwargs):
     """Generates an SAML authentication response."""
+    edu_person_affiliation = kwargs.get("edu_person_affiliation", [])
+    if not isinstance(edu_person_affiliation, (list, tuple)):
+        edu_person_affiliation = [edu_person_affiliation]
+
     response_attributes = {
         "in_response_to": in_response_to,
         "issuer": "http://edu.example.com/adfs/services/trust",
@@ -295,7 +306,7 @@ def generate_auth_response(in_response_to, acs_url, **kwargs):
         "display_name": "Rick Sanchez",
         "email": "rsanchez@samltest.id",
         "edu_person_affiliation_attribute": format_edu_person_affiliation_attribute(
-            kwargs.get("edu_person_affiliation", None),
+            edu_person_affiliation,
         ),
     }
     response_attributes.update(kwargs)

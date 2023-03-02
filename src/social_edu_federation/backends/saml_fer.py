@@ -62,6 +62,20 @@ class FERSAMLIdentityProvider(EduFedSAMLIdentityProvider):
 
         super().__init__(name, **{**default_fer_saml_attributes, **kwargs})
 
+    def get_attr_list(self, attributes, conf_key, default_attribute):
+        """
+        Get an attribute which contains a list of values from the SAML response.
+        """
+        key = self.conf.get(conf_key, default_attribute)
+
+        value = attributes.get(key, None)
+        if value is not None:
+            if not value:
+                value = []
+            elif not isinstance(value, (list, tuple)):
+                value = [value]
+        return value
+
     def get_user_details(self, attributes: dict) -> dict:
         """
         Given the SAML attributes extracted from the SSO response, get
@@ -72,16 +86,13 @@ class FERSAMLIdentityProvider(EduFedSAMLIdentityProvider):
         This returns a dict which is later known in the pipeline as `details`.
         """
         user_details = super().get_user_details(attributes)
-        roles_str = self.get_attr(  # may be None or ""
-            attributes, "attr_roles", OID_ROLES
-        )
-        user_details["roles"] = (
-            roles_str.split(",")
-            if roles_str
-            # We want to preserve the None value if roles are not defined
-            # but return an empty list if roles are defined but empty (ie "")
-            else {None: None}.get(roles_str, [])
-        )
+
+        roles = self.get_attr_list(attributes, "attr_roles", OID_ROLES)
+        if roles and len(roles) == 1 and "," in roles[0]:
+            # Fallback to manage list of roles as a single string
+            roles = roles[0].split(",")
+        user_details["roles"] = roles
+
         return user_details
 
 
