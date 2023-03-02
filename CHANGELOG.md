@@ -9,7 +9,7 @@ and this project adheres to
 
 ## [Unreleased]
 
-### Added
+### Fixed
 - `eduPersonAffiliation` attribute can be provided as a list,
   not only a string comma-separated.
 
