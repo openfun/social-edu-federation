@@ -9,6 +9,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [2.1.1] - 2023-03-02
+
 ### Fixed
 - `eduPersonAffiliation` attribute can be provided as a list,
   not only a string comma-separated.
@@ -39,7 +41,8 @@ and this project adheres to
 - Django integration: add common views for SAML FER backend use.
 - User's first name/last name/full name cleanup pipeline step.
 
-[unreleased]: https://github.com/openfun/social-edu-federation/compare/v2.1.0...main
+[unreleased]: https://github.com/openfun/social-edu-federation/compare/v2.1.1...main
+[2.1.1]: https://github.com/openfun/social-edu-federation/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/openfun/social-edu-federation/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/openfun/social-edu-federation/compare/v1.0.1...v2.0.0
 [1.0.1]: https://github.com/openfun/social-edu-federation/compare/v1.0.0...v1.0.1
