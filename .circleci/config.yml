@@ -103,10 +103,11 @@ jobs:
           # pip-dependency-file is only used for cache checksum
           pip-dependency-file: tox.ini
           pre-install-steps:
-            - run: pyenv install --skip-existing 3.8.13
-            - run: pyenv install --skip-existing 3.9.12
-            - run: pyenv install --skip-existing 3.10.4
-            - run: pyenv local 3.8.13 3.9.12 3.10.4
+            - run: pyenv install --skip-existing 3.8
+            - run: pyenv install --skip-existing 3.9
+            - run: pyenv install --skip-existing 3.10
+            - run: pyenv install --skip-existing 3.11
+            - run: pyenv local 3.8 3.9 3.10 3.11
       - run:
           name: "Run tox"
           command: tox --parallel 3

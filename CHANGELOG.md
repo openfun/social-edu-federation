@@ -9,6 +9,11 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- tests with python 3.11
+- tests with django 4.1 and 4.2
+
 ## [2.1.1] - 2023-03-02
 
 ### Fixed
